@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سامانه جامع امور قراردادها و مهندسی ادعا — خط ۱۰ متروی تهران</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230f172a' stroke='%23f59e0b' stroke-width='4'/%3E%3Ctext x='50%25' y='68%25' font-size='52' font-weight='900' font-family='sans-serif' text-anchor='middle' fill='%23f59e0b'%3E10%3C/text%3E%3C/svg%3E">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              gold: '#f59e0b',
+              emerald: '#10b981',
+              blue: '#38bdf8',
+              purple: '#a855f7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts Vazirmatn -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Chart.js & Lucide Icons -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href="styles.css?v=3">
+
+  <!-- استایل‌های مستقیم و مطمئن در صورت کش شدن مرورگر -->
+  <style>
+    :root {
+      --font-vazir: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Tahoma, Arial, sans-serif;
+      --bg-app: #0b0f19;
+      --bg-sidebar: #0f172a;
+      --bg-card: #151e32;
+      --border-card: rgba(255, 255, 255, 0.1);
+      --border-subtle: #1e293b;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-gold: #f59e0b;
+    }
+    * { font-family: var(--font-vazir); box-sizing: border-box; }
+    body { direction: rtl; text-align: right; background-color: var(--bg-app); color: var(--text-primary); }
+    .num-font, td, th { font-variant-numeric: tabular-nums; }
+    .exec-card {
+      background-color: #151e32;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .exec-card:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.5);
+      transform: translateY(-2px);
+    }
+    .exec-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: right; font-size: 0.8125rem; }
+    .exec-table th { padding: 0.875rem 1rem; font-size: 0.75rem; font-weight: 700; color: #94a3b8; background-color: #1e293b; border-bottom: 2px solid #334155; }
+    .exec-table td { padding: 0.875rem 1rem; border-bottom: 1px solid #1e293b; color: #f8fafc; }
+    .exec-table tbody tr:hover td { background-color: rgba(245, 158, 11, 0.05); }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.625rem 0.875rem; border-radius: 10px; font-size: 0.8125rem; font-weight: 500; color: #94a3b8; transition: all 0.15s ease; border-right: 3px solid transparent; }
+    .sidebar-link:hover { color: #ffffff; background-color: rgba(255, 255, 255, 0.06); }
+    .sidebar-link-active { color: #f59e0b !important; background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.02) 100%); border-right-color: #f59e0b; font-weight: 700; }
+    .btn-gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0f172a; font-weight: 800; font-size: 0.75rem; padding: 0.625rem 1.125rem; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3); transition: all 0.15s ease; border: none; }
+    .btn-gold:hover { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45); transform: translateY(-1px); }
+    .badge-status { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-size: 0.6875rem; font-weight: 700; }
+    .badge-emerald { background-color: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); }
+    .badge-amber { background-color: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
+  </style>
+</head>
+<body class="flex min-h-screen overflow-x-hidden">
+
+  <!-- ==================================================================== -->
+  <!-- ۱. سایدبار اجرایی (Executive Sidebar) -->
+  <!-- ==================================================================== -->
+  <aside class="w-72 bg-slate-900 border-l border-slate-800 flex flex-col justify-between shrink-0 sticky top-0 h-screen z-40 select-none shadow-2xl">
+    
+    <!-- بالای سایدبار -->
+    <div class="p-5 flex flex-col gap-5 overflow-y-auto">
+      
+      <!-- نشان و برند پروژه خط ۱۰ -->
+      <div class="flex items-center gap-3.5 pb-4 border-b border-slate-800">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20 shrink-0">
+          ۱۰
+        </div>
+        <div class="flex flex-col">
+          <span class="text-[10px] font-black tracking-widest text-amber-400 uppercase">TEHRAN METRO LINE 10</span>
+          <h1 class="text-xs font-black text-white">خط ۱۰ متروی تهران</h1>
+          <span class="text-[10px] text-slate-400 font-medium truncate max-w-[170px]">خاتم‌الانبیاء — مهندسی رهاب</span>
+        </div>
+      </div>
+
+      <!-- کارت خلاصه وضعیت پیمان -->
+      <div class="bg-slate-850 p-3.5 rounded-xl border border-slate-750 bg-slate-800/60">
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+          <span>شماره پیمان ابلاغی:</span>
+          <span class="font-mono text-amber-400 font-bold" id="sidebar-contract-no">۰۱/۱۰/۷۲/م</span>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mb-2">
+          <span>مبلغ اولیه بخش یک:</span>
+          <span class="font-bold text-white">۳۹.۷ همت</span>
+        </div>
+        <div class="w-full bg-slate-700/80 h-1.5 rounded-full overflow-hidden">
+          <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full" style="width: 61.6%"></div>
+        </div>
+        <div class="flex items-center justify-between text-[10px] text-slate-400 mt-1.5">
+          <span>پیشرفت کارکرد مصوب:</span>
+          <span class="text-emerald-400 font-bold">۶۱.۶٪</span>
+        </div>
+      </div>
+
+      <!-- منوی ناوبری -->
+      <nav class="space-y-4">
+        
+        <!-- گروه اول: مدیریت و نظارت -->
+        <div>
+          <span class="text-[10px] font-bold text-slate-500 tracking-wider uppercase px-2 block mb-1.5">مرکز پایش و کنترل</span>
+          <div class="space-y-1">
+            <button onclick="switchTab('dashboard')" class="sidebar-link w-full sidebar-link-active" data-tab="dashboard">
+              <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-400"></i>
+              <span>داشبورد مدیریتی و KPIها</span>
+            </button>
+            <button onclick="switchTab('certificates')" class="sidebar-link w-full" data-tab="certificates">
+              <i data-lucide="banknote" class="w-4 h-4 text-emerald-400"></i>
+              <span>صورت‌وضعیت‌ها و پیش‌پرداخت</span>
+            </button>
+            <button onclick="switchTab('events')" class="sidebar-link w-full" data-tab="events">
+              <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-400"></i>
+              <span>جبهه‌های کاری و معارضات خط ۱۰</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- گروه دوم: ادعاها و قوانین -->
+        <div>
+          <span class="text-[10px] font-bold text-slate-500 tracking-wider uppercase px-2 block mb-1.5">مهندسی ادعا و قوانین</span>
+          <div class="space-y-1">
+            <a href="claims_presentation.html" target="_blank" class="sidebar-link w-full bg-gradient-to-l from-amber-500/15 to-transparent border border-amber-500/30 text-amber-300 font-bold hover:bg-amber-500/25 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="presentation" class="w-4 h-4 text-amber-400"></i>
+                <span>ارائه کلیم‌ها و صرفه‌جویی‌ها</span>
+              </div>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-500 text-black font-black">جلسه</span>
+            </a>
+            <button onclick="switchTab('delay-claim')" class="sidebar-link w-full" data-tab="delay-claim">
+              <i data-lucide="calendar-clock" class="w-4 h-4 text-purple-400"></i>
+              <span>لایحه تاخیرات ۵۰۹۰ و همپوشانی</span>
+            </button>
+            <button onclick="switchTab('knowledge-base')" class="sidebar-link w-full" data-tab="knowledge-base">
+              <i data-lucide="scale" class="w-4 h-4 text-cyan-400"></i>
+              <span>دانشنامه قوانین و نشریه ۴۳۱۱</span>
+            </button>
+            <button onclick="switchTab('contract-guide')" class="sidebar-link w-full" data-tab="contract-guide">
+              <i data-lucide="book-open" class="w-4 h-4 text-rose-400"></i>
+              <span>اطلس ۵۱ بند قرارداد خط ۱۰</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- گروه سوم: استودیوی اسناد -->
+        <div>
+          <span class="text-[10px] font-bold text-slate-500 tracking-wider uppercase px-2 block mb-1.5">تولید اسناد رسمی</span>
+          <div class="space-y-1">
+            <button onclick="switchTab('documents')" class="sidebar-link w-full" data-tab="documents">
+              <i data-lucide="file-output" class="w-4 h-4 text-blue-400"></i>
+              <span>تولید و دانلود اسناد و لوایح</span>
+            </button>
+          </div>
+        </div>
+
+      </nav>
+
+    </div>
+
+    <!-- پایین سایدبار -->
+    <div class="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-between text-xs">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-[11px] text-slate-400">سرور محلی متصل</span>
+      </div>
+      <button onclick="toggleTheme()" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition" title="تغییر تم">
+        <i data-lucide="sun-moon" class="w-4 h-4 text-amber-400"></i>
+      </button>
+    </div>
+
+  </aside>
+
+  <!-- ==================================================================== -->
+  <!-- ۲. بدنه اصلی صفحه (Main Viewport) -->
+  <!-- ==================================================================== -->
+  <div class="flex-1 flex flex-col min-w-0">
+    
+    <!-- نوار هدر بالا -->
+    <header class="h-16 bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 flex items-center justify-between sticky top-0 z-30">
+      
+      <!-- عنوان نما -->
+      <div class="flex items-center gap-3">
+        <div class="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+        <div>
+          <h2 class="text-sm font-extrabold text-white" id="current-view-title">داشبورد جامع امور قراردادها و مهندسی ادعا</h2>
+          <span class="text-[11px] text-slate-400 hidden sm:inline">سامانه هوشمند پایش تعهدات و تولید لوایح پروژه خط ۱۰ مترو تهران</span>
+        </div>
+      </div>
+
+      <!-- ابزارهای سمت چپ هدر -->
+      <div class="flex items-center gap-3">
+        <div class="bg-slate-800/80 border border-slate-700/80 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs text-slate-300">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span id="topbar-jalali-date">امروز: ۱۴۰۳/۱۲/۰۵</span>
+        </div>
+
+        <div class="bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-1.5 text-xs text-amber-300 font-bold">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span id="topbar-delay-days">+۳۷۹ روز تمدید مصوب</span>
+        </div>
+
+        <button onclick="openNewCertModal()" class="btn-gold">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>ثبت صورت‌وضعیت</span>
+        </button>
+      </div>
+
+    </header>
+
+    <!-- محتوای تب‌ها -->
+    <main class="p-6 lg:p-8 space-y-6 flex-1 max-w-[1600px] w-full mx-auto">
+
+      <!-- ============================================================== -->
+      <!-- تب ۱: داشبورد اصلی مدیریتی -->
+      <!-- ============================================================== -->
+      <section id="tab-dashboard" class="tab-content block space-y-6">
+        
+        <!-- بنر راهبردی پروژه خط ۱۰ -->
+        <div class="exec-card p-6 bg-gradient-to-l from-slate-900 via-slate-850 to-slate-900 border-amber-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 text-amber-400 text-xs font-bold uppercase tracking-wider mb-1">
+              <i data-lucide="shield" class="w-4 h-4"></i>
+              <span>پروژه راهبردی کلان‌شهری پایتخت</span>
+            </div>
+            <h3 class="text-xl md:text-2xl font-black text-white">پروژه احداث خط ۱۰ متروی تهران — قطعه غربی</h3>
+            <p class="text-xs text-slate-300 mt-1.5 max-w-2xl leading-relaxed">
+              قرارداد شماره <span class="font-mono text-amber-400 font-bold">۰۱/۱۰/۷۲/م</span> • کارفرما: <span class="text-white font-semibold">شرکت مترو تهران</span> • پیمانکار: <span class="text-white font-semibold">قرارگاه سازندگی خاتم‌الانبیاء (ص) — موسسه مهندسی رهاب</span> • مدیر طرح: <span class="text-white font-semibold">مهندسین مشاور ره پویان</span>
+            </p>
+          </div>
+          <div class="flex items-center gap-2.5 shrink-0">
+            <button onclick="generateDoc('delay_claim')" class="btn-gold">
+              <i data-lucide="file-down" class="w-4 h-4"></i>
+              <span>تولید فوری لایحه تاخیرات</span>
+            </button>
+            <button onclick="generateDoc('excel_full')" class="btn-ghost">
+              <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-400"></i>
+              <span>دفترچه اکسل</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ۴ کارت شاخص اجرایی (Executive Metric Cards) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          
+          <!-- کارت ۱: مبلغ اولیه بخش یک -->
+          <div class="exec-card p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-400">مبلغ اولیه بخش یک (سیویل)</span>
+              <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                <i data-lucide="coins" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div class="text-2xl font-black text-white tracking-tight num-font" id="kpi-initial-amount">۳۹۷,۰۷۰ م ریال</div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mt-3 pt-2.5 border-t border-slate-800">
+              <span>سقف ۲۵٪ ماده ۲۹:</span>
+              <span class="font-bold text-amber-400 num-font" id="kpi-ceiling-25">۹۹,۲۶۷ م ریال</span>
+            </div>
+          </div>
+
+          <!-- کارت ۲: کارکرد تجمعی مصوب مشاور -->
+          <div class="exec-card p-5 relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-400">کارکرد مصوب مشاور (تجمعی)</span>
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                <i data-lucide="check-check" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div class="text-2xl font-black text-emerald-400 tracking-tight num-font" id="kpi-total-approved">۲۴۴,۶۰۰ م ریال</div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mt-3 pt-2.5 border-t border-slate-800">
+              <span>پیشرفت مالی بخش یک:</span>
+              <span class="font-bold text-emerald-400 num-font" id="kpi-financial-progress">۶۱.۶٪</span>
+            </div>
+          </div>
+
+          <!-- کارت ۳: تمدید مجاز پیمان ۵۰۹۰ -->
+          <div class="exec-card p-5 relative overflow-hidden border-amber-500/40">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-amber-400">تمدید مجاز خالص (ماده ۳۰)</span>
+              <div class="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div class="text-2xl font-black text-amber-400 tracking-tight num-font" id="kpi-net-delay-days">۳۷۹ روز تقویمی</div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mt-3 pt-2.5 border-t border-slate-800">
+              <span>معادل زمانی:</span>
+              <span class="font-bold text-amber-300 num-font" id="kpi-delay-months">۱۲.۴ ماه تمدید قطعی</span>
+            </div>
+          </div>
+
+          <!-- کارت ۴: تاریخ پایان مصوب پیمان -->
+          <div class="exec-card p-5 relative overflow-hidden border-purple-500/30">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-purple-300">موعد مصوب جدید اتمام</span>
+              <div class="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
+                <i data-lucide="calendar-check" class="w-5 h-5"></i>
+              </div>
+            </div>
+            <div class="text-2xl font-black text-purple-300 tracking-tight font-mono" id="kpi-new-finish-date">۱۴۰۹/۰۳/۱۵</div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mt-3 pt-2.5 border-t border-slate-800">
+              <span>تاریخ اولیه پیمان:</span>
+              <span class="font-mono text-slate-300" id="kpi-initial-finish">۱۴۰۸/۰۳/۰۲</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ردیف نمودارها -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- نمودار جریان نقدینگی (۲ ستون) -->
+          <div class="exec-card p-6 lg:col-span-2 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                  <i data-lucide="bar-chart-2" class="w-4 h-4 text-amber-400"></i>
+                  <span>جریان نقدینگی و مقایسه کارکرد با واریزی‌های کارفرما (Cash Flow)</span>
+                </h4>
+                <p class="text-xs text-slate-400 mt-1">صورت‌وضعیت‌های کارکرد موقت خط ۱۰ مترو تهران (میلیارد ریال)</p>
+              </div>
+              <span class="badge-status badge-amber">ماده ۳۷ شرایط عمومی</span>
+            </div>
+            <div class="h-72">
+              <canvas id="chart-cashflow"></canvas>
+            </div>
+          </div>
+
+          <!-- نمودار تفکیک تاخیرات لایحه (۱ ستون) -->
+          <div class="exec-card p-6 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                  <i data-lucide="pie-chart" class="w-4 h-4 text-purple-400"></i>
+                  <span>تفکیک تاخیرات لایحه (روز)</span>
+                </h4>
+                <p class="text-xs text-slate-400 mt-1">تحلیل همپوشانی مالی و موانع کارگاه</p>
+              </div>
+            </div>
+            <div class="h-72 flex items-center justify-center">
+              <canvas id="chart-delays"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ردیف تضامین و آخرین معارضین کارگاهی -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- ضمانت‌نامه‌ها -->
+          <div class="exec-card p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                <span>کنترل و سررسید ضمانت‌نامه‌های بانکی پیمان</span>
+              </h4>
+              <span class="badge-status badge-emerald">۳ ضمانت‌نامه معتبر</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="exec-table">
+                <thead>
+                  <tr>
+                    <th>نوع ضمانت‌نامه</th>
+                    <th>بانک صادرکننده</th>
+                    <th>مبلغ (ریال)</th>
+                    <th>سررسید</th>
+                    <th class="text-center">وضعیت</th>
+                  </tr>
+                </thead>
+                <tbody id="tbl-guarantees-dashboard">
+                  <!-- JS Data -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- آخرین وضعیت معارضین در کارگاه‌ها -->
+          <div class="exec-card p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="hard-hat" class="w-4 h-4 text-amber-400"></i>
+                <span>آخرین وضعیت جبهه‌های کاری و موانع خط ۱۰</span>
+              </h4>
+              <button onclick="switchTab('events')" class="text-xs text-amber-400 hover:underline font-bold">مشاهده کلیه موانع ←</button>
+            </div>
+            <div class="space-y-3" id="dashboard-events-list">
+              <!-- JS Data -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- تب ۲: صورت‌وضعیت‌ها و پیش‌پرداخت‌ها (ماده ۳۷) -->
+      <!-- ============================================================== -->
+      <section id="tab-certificates" class="tab-content hidden space-y-6">
+        
+        <div class="exec-card p-6 flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold text-white">روزشمار و پایش صورت‌وضعیت‌های کارکرد موقت (ماده ۳۷)</h3>
+            <p class="text-xs text-slate-400 mt-1">کنترل مهلت‌های رسیدگی مهندسین مشاور و مواعد پرداخت کارفرما و فرمول ۵۰۹۰</p>
+          </div>
+          <button onclick="openNewCertModal()" class="btn-gold">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>افزودن صورت‌وضعیت جدید</span>
+          </button>
+        </div>
+
+        <div class="exec-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="exec-table">
+              <thead>
+                <tr>
+                  <th>شماره سند</th>
+                  <th>تاریخ ارسال پیمانکار</th>
+                  <th>تاریخ تایید مشاور</th>
+                  <th>تاریخ تادیه / حواله</th>
+                  <th>مبلغ مصوب مشاور (ریال)</th>
+                  <th>مبلغ واریزی (ریال)</th>
+                  <th>روش پرداخت</th>
+                  <th class="text-center">ایام تاخیر تقویمی</th>
+                  <th class="text-center">تاخیر ۵۰۹۰ (روز T)</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-certificates">
+                <!-- JS Data -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- تب ۳: جبهه‌های کاری و معارضات خط ۱۰ (ماده ۲۸) -->
+      <!-- ============================================================== -->
+      <section id="tab-events" class="tab-content hidden space-y-6">
+        
+        <div class="exec-card p-6 flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold text-white">دفتر ثبت موانع فیزیکی، معارضین تاسیساتی و ملکی (ماده ۲۸)</h3>
+            <p class="text-xs text-slate-400 mt-1">کارگاه شفت دریاچه چیتگر، ایستگاه کوهک، خطوط گاز، آب و کابل‌های برق</p>
+          </div>
+          <button onclick="openNewEventModal()" class="btn-gold">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>ثبت معارض کارگاهی جدید</span>
+          </button>
+        </div>
+
+        <div class="exec-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="exec-table">
+              <thead>
+                <tr>
+                  <th>ایستگاه / شفت</th>
+                  <th>شرح دقیق مانع کارگاهی</th>
+                  <th class="text-center">مسیر بحرانی</th>
+                  <th>تاریخ شروع</th>
+                  <th>تاریخ رفع</th>
+                  <th class="text-center">ایام توقف</th>
+                  <th>مکاتبه رسمی</th>
+                  <th class="text-center">وضعیت</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-events">
+                <!-- JS Data -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- تب ۴: لایحه تاخیرات ۵۰۹۰ و همپوشانی -->
+      <!-- ============================================================== -->
+      <section id="tab-delay-claim" class="tab-content hidden space-y-6">
+        
+        <div class="exec-card p-6 flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-bold text-white">موتور تجمیع ریاضی تاخیرات و رفع همپوشانی (بخشنامه ۵۰۹۰)</h3>
+            <p class="text-xs text-slate-400 mt-1">تطبیق روزشمار تاخیرات مالی با معارضات فیزیکی کارگاه‌ها جهت استخراج تمدید قطعی</p>
+          </div>
+          <button onclick="generateDoc('delay_claim')" class="btn-gold">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>تولید دفترچه لایحه جامع (Word)</span>
+          </button>
+        </div>
+
+        <div class="exec-card overflow-hidden">
+          <div class="p-4 bg-slate-800/80 border-b border-slate-700 flex justify-between items-center">
+            <span class="font-bold text-white text-xs">جدول روزشمار تداخل و پالایش ایام مشترک (Overlap Calendar)</span>
+            <span class="badge-status badge-amber">۳۷۹ روز تمدید مصوب</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="exec-table">
+              <thead>
+                <tr>
+                  <th>ردیف رویداد / صورت‌وضعیت</th>
+                  <th>بازه تاریخی شروع لغایت پایان</th>
+                  <th class="text-center">ایام خام</th>
+                  <th>نوع منشأ (مالی / فیزیکی)</th>
+                  <th>وضعیت همپوشانی</th>
+                  <th class="text-center">سهم تمدید مجاز</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-overlap-breakdown">
+                <!-- JS Data -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- تب ۵: دانشنامه قوانین و نشریه ۴۳۱۱ -->
+      <!-- ============================================================== -->
+      <section id="tab-knowledge-base" class="tab-content hidden space-y-6">
+        
+        <div class="exec-card p-6">
+          <h3 class="text-base font-bold text-white">دانشنامه حقوقی و فنی نظام فنی و اجرایی کشور</h3>
+          <p class="text-xs text-slate-400 mt-1">مستندات شرایط عمومی پیمان (نشریه ۴۳۱۱)، بخشنامه ۵۰۹۰ و دستورالعمل ادعای خاتم‌الانبیاء</p>
+          <div class="mt-4">
+            <input type="text" id="knowledge-search-input" onkeyup="searchKnowledge()" placeholder="جستجو در مواد پیمان و بخشنامه‌ها (مثال: ماده ۲۹، تعلیق، تهاتر)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div id="knowledge-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- JS Data -->
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- تب ۶: اطلس ۵۱ بند کلیدی قرارداد خط ۱۰ -->
+      <!-- ============================================================== -->
+      <section id="tab-contract-guide" class="tab-content hidden space-y-6">
+        
+        <div class="exec-card p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-base font-bold text-white">اطلس ۵۱ بند کلیدی قرارداد خط ۱۰ مترو تهران</h3>
+              <p class="text-xs text-slate-400 mt-1">مستخرج از دفترچه راهنمای رسمی قرارداد با ارجاع به شماره صفحه دقیق</p>
+            </div>
+            <input type="text" id="guide-search-input" onkeyup="searchContractGuide()" placeholder="جستجوی موضوع یا شماره ماده..." class="bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none w-72">
+          </div>
+        </div>
+
+        <div class="exec-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="exec-table">
+              <thead>
+                <tr>
+                  <th style="width: 80px;" class="text-center">ردیف</th>
+                  <th>موضوع و سرفصل قراردادی</th>
+                  <th>شماره بند و ماده پیمان</th>
+                  <th class="text-center" style="width: 140px;">شماره صفحه رسمی</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-contract-guide">
+                <!-- JS Data -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============================================================== -->
+      <!-- تب ۷: استودیوی تولید و دانلود اسناد -->
+      <!-- ============================================================== -->
+      <section id="tab-documents" class="tab-content hidden space-y-6">
+        
+        <div class="exec-card p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-bold text-white">استودیوی تولید مکاتبات رسمی، لوایح و دفترچه‌ها</h3>
+            <p class="text-xs text-slate-400 mt-1">کلیه اسناد مطابق سربرگ قرارگاه خاتم‌الانبیاء (مهندسی رهاب) و ادبیات رسمی اداری تولید می‌شوند.</p>
+          </div>
+          <button onclick="generateAllDocs()" class="btn-gold shrink-0">
+            <i data-lucide="layers" class="w-4 h-4"></i>
+            <span>تولید یکجای کلیه اسناد (Word + Excel)</span>
+          </button>
+        </div>
+
+        <!-- کارت‌های اسناد تولیدی -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          
+          <!-- سند ۱: لایحه ۵۰۹۰ -->
+          <div class="exec-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <span class="badge-status badge-blue">Word .docx</span>
+                <span class="text-xs text-slate-400">ماده ۳۰ و ۵۰۹۰</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">لایحه جامع تاخیرات مجاز خط ۱۰</h4>
+              <p class="text-xs text-slate-400 mt-2 leading-relaxed">شامل مبانی حقوقی، جدول تاخیرات ۵۰۹۰، جدول معارضات فیزیکی شفت‌ها و اثبات ۳۷۹ روز تمدید مجاز پیمان.</p>
+            </div>
+            <button onclick="generateDoc('delay_claim')" class="btn-ghost w-full justify-center mt-5">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>تولید و دانلود سند (Word)</span>
+            </button>
+          </div>
+
+          <!-- سند ۲: دفترچه محاسبات اکسل -->
+          <div class="exec-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <span class="badge-status badge-emerald">Excel .xlsx</span>
+                <span class="text-xs text-slate-400">فرمول‌های زنده RTL</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">دفترچه محاسبات جامع اکسل</h4>
+              <p class="text-xs text-slate-400 mt-2 leading-relaxed">شیت‌های راست‌به‌چپ با فرمول‌های زنده T=(D*F)/P، خلاصه مالی، سقف ۲۵٪، تضامین و موانع فیزیکی کارگاه.</p>
+            </div>
+            <button onclick="generateDoc('excel_full')" class="btn-ghost w-full justify-center mt-5">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>تولید دفترچه (Excel)</span>
+            </button>
+          </div>
+
+          <!-- سند ۳: نامه تاخیر پرداخت -->
+          <div class="exec-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <span class="badge-status badge-blue">Word .docx</span>
+                <span class="text-xs text-slate-400">ماده ۳۷ پیمان</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">نامه مطالبه تاخیرات پرداخت صورت‌وضعیت</h4>
+              <p class="text-xs text-slate-400 mt-2 leading-relaxed">اخطار رسمی عدم تادیه در موعد مقرر و مطالبه تمدید زمانی ناشی از عدم نقدینگی و حواله تهاتر ملک.</p>
+            </div>
+            <button onclick="generateDoc('payment_letter')" class="btn-ghost w-full justify-center mt-5">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>تولید نامه (Word)</span>
+            </button>
+          </div>
+
+          <!-- سند ۴: نامه معارض تاسیساتی -->
+          <div class="exec-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <span class="badge-status badge-amber">Word .docx</span>
+                <span class="text-xs text-slate-400">ماده ۲۸ پیمان</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">نامه رسمی معارض تاسیساتی شفت ورود TBM</h4>
+              <p class="text-xs text-slate-400 mt-2 leading-relaxed">اعلام برخورد با لوله ۳۰ اینچ گاز و کابل برق فشار قوی در کارگاه دریاچه چیتگر و درخواست رفع فوری معارض.</p>
+            </div>
+            <button onclick="generateDoc('obstacle_letter')" class="btn-ghost w-full justify-center mt-5">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>تولید نامه (Word)</span>
+            </button>
+          </div>
+
+          <!-- سند ۵: نامه سقف ۲۵٪ -->
+          <div class="exec-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <span class="badge-status badge-amber">Word .docx</span>
+                <span class="text-xs text-slate-400">ماده ۲۹ پیمان</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">نامه هشدار تکمیل سقف ۲۵٪ افزایش مقادیر</h4>
+              <p class="text-xs text-slate-400 mt-2 leading-relaxed">اعلام رسیدن به سقف ۲۵ درصدی پیمان و درخواست تشکیل کمیته تعیین تکلیف و ابلاغ الحاقیه جدید.</p>
+            </div>
+            <button onclick="generateDoc('ceiling_letter')" class="btn-ghost w-full justify-center mt-5">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>تولید نامه (Word)</span>
+            </button>
+          </div>
+
+          <!-- سند ۶: صورت‌جلسه کارگاهی -->
+          <div class="exec-card p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center mb-3">
+                <span class="badge-status badge-blue">Word .docx</span>
+                <span class="text-xs text-slate-400">صورت‌جلسه کارگاهی</span>
+              </div>
+              <h4 class="text-sm font-bold text-white">صورت‌جلسه کارگاهی موانع و توقفات</h4>
+              <p class="text-xs text-slate-400 mt-2 leading-relaxed">فرمت استاندارد صورت‌جلسه سه‌جانبه کارفرما، مشاور و پیمانکار جهت ثبت میدانی توقفات کارگاهی.</p>
+            </div>
+            <button onclick="generateDoc('site_minutes')" class="btn-ghost w-full justify-center mt-5">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>تولید صورت‌جلسه (Word)</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- جدول فایل‌های آماده دانلود -->
+        <div class="exec-card p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="folder-down" class="w-4 h-4 text-amber-400"></i>
+              <span>فایل‌های آماده دانلود در مخزن سیستم (Output Documents)</span>
+            </h4>
+            <button onclick="loadGeneratedDocuments()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-bold">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>بروزرسانی لیست</span>
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="exec-table">
+              <thead>
+                <tr>
+                  <th>نام فایل سند</th>
+                  <th>حجم فایل (KB)</th>
+                  <th class="text-center">دانلود مستقیم</th>
+                </tr>
+              </thead>
+              <tbody id="tbl-generated-docs">
+                <!-- JS Data -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- ۳. مودال‌ها (Modals) -->
+  <!-- ==================================================================== -->
+
+  <!-- مودال صورت‌وضعیت -->
+  <div id="modal-new-cert" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="exec-card max-w-lg w-full p-6 space-y-4 bg-slate-900 border-slate-700">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white">ثبت صورت‌وضعیت یا پیش‌پرداخت جدید</h3>
+        <button onclick="closeNewCertModal()" class="text-slate-400 hover:text-white text-base">✕</button>
+      </div>
+      <form onsubmit="submitNewCert(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-400 block mb-1">شماره صورت‌وضعیت:</label>
+            <input type="text" id="cert-input-number" required placeholder="مثال: ۶" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">نوع سند:</label>
+            <select id="cert-input-type" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+              <option value="interim">کارکرد موقت</option>
+              <option value="advance">پیش‌پرداخت</option>
+              <option value="adjustment">تعدیل آحاد بها</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-400 block mb-1">روش پرداخت:</label>
+            <select id="cert-input-method" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+              <option value="نقد">نقد</option>
+              <option value="تهاتر ملک">تهاتر ملک شهرداری</option>
+              <option value="ترکیبی">ترکیبی (نقد و غیرنقد)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">تاریخ ارسال پیمانکار:</label>
+            <input type="text" id="cert-input-submission" required placeholder="۱۴۰۳/۰۱/۱۵" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-400 block mb-1">تاریخ تایید مشاور:</label>
+            <input type="text" id="cert-input-approval" placeholder="۱۴۰۳/۰۱/۲۵" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">تاریخ واریز / حواله کارفرما:</label>
+            <input type="text" id="cert-input-payment" placeholder="۱۴۰۳/۰۴/۱۰" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-400 block mb-1">مبلغ مصوب مشاور (ریال):</label>
+            <input type="number" id="cert-input-approved" required placeholder="ریال" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white font-mono">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">مبلغ واریز شده کارفرما (ریال):</label>
+            <input type="number" id="cert-input-paid" placeholder="ریال" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-slate-400 block mb-1">توضیحات و مستندات:</label>
+          <input type="text" id="cert-input-notes" placeholder="شماره نامه یا مشخصات حواله ملکی..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+          <button type="button" onclick="closeNewCertModal()" class="btn-ghost">انصراف</button>
+          <button type="submit" class="btn-gold">ثبت در سامانه</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- مودال معارض -->
+  <div id="modal-new-event" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="exec-card max-w-lg w-full p-6 space-y-4 bg-slate-900 border-slate-700">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white">ثبت معارض یا رویداد توقف کارگاهی</h3>
+        <button onclick="closeNewEventModal()" class="text-slate-400 hover:text-white text-base">✕</button>
+      </div>
+      <form onsubmit="submitNewEvent(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="text-slate-400 block mb-1">ایستگاه یا شفت مربوطه:</label>
+          <input type="text" id="ev-input-station" required placeholder="مثال: شفت ورودی TBM دریاچه چیتگر" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-400 block mb-1">نوع مانع / معارض:</label>
+            <select id="ev-input-type" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+              <option value="معارض ملکی">معارض ملکی و عدم تحویل زمین</option>
+              <option value="معارض تاسیساتی">معارض تاسیساتی (گاز، آب، برق)</option>
+              <option value="معارض ترافیکی">معارض ترافیکی و عدم مجوز انسداد</option>
+              <option value="عدم ابلاغ نقشه">عدم ابلاغ نقشه‌ها و دستورکارها</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">مسیر بحرانی (Critical Path):</label>
+            <select id="ev-input-critical" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+              <option value="true">بله (توقف کامل جبهه)</option>
+              <option value="false">خیر (کند شدن عملیات)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-slate-400 block mb-1">تاریخ شروع وقوع:</label>
+            <input type="text" id="ev-input-start" required placeholder="۱۴۰۲/۰۶/۱۰" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+          <div>
+            <label class="text-slate-400 block mb-1">تاریخ رفع معارض (در صورت رفع):</label>
+            <input type="text" id="ev-input-end" placeholder="خالی در صورت استمرار" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+        </div>
+
+        <div>
+          <label class="text-slate-400 block mb-1">شرح دقیق مانع و پیامدها:</label>
+          <textarea id="ev-input-desc" required rows="3" placeholder="توضیح برخورد با تأسیسات و توقف عملیات..." class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white"></textarea>
+        </div>
+
+        <div>
+          <label class="text-slate-400 block mb-1">شماره مکاتبه رسمی به کارفرما/مشاور:</label>
+          <input type="text" id="ev-input-letter" placeholder="مثال: ر/۱۰/م/۱۴۰۲-۴۵" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2 text-white">
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+          <button type="button" onclick="closeNewEventModal()" class="btn-ghost">انصراف</button>
+          <button type="submit" class="btn-gold">ثبت رویداد</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js?v=3"></script>
+</body>
+</html>
