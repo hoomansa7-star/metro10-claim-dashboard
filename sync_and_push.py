@@ -103,5 +103,9 @@ def push_to_github():
 
 
 if __name__ == "__main__":
+    print("=" * 68)
+    print("  سامانه بروزرسانی خودکار داشبورد کلیم‌های خط ۱۰ مترو در گیت‌هاب")
+    print("=" * 68)
     sync_excel_to_web()
     push_to_github()
+    print("=" * 68)

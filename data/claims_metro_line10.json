@@ -1,9 +1,9 @@
 {
   "summary": {
     "employer_totals": {
-      "initial_claimed_rial": 6272379056603.156,
+      "initial_claimed_rial": 6039602336603.156,
       "received_to_date_rial": 743932152403.3099,
-      "potential_all_stations_rial": 20960448435264.3,
+      "potential_all_stations_rial": 20727671715264.3,
       "claims_count": 42
     },
     "subcontractor_defense_totals": {
@@ -15,15 +15,15 @@
     },
     "grand_value_creation": {
       "realized_value_to_date_rial": 2302814643019.03,
-      "grand_potential_rial": 22519330925880.02,
+      "grand_potential_rial": 22286554205880.02,
       "total_active_cases": 49
     },
     "employer": {
-      "total_initial_claim": 6272379056603.156,
+      "total_initial_claim": 6039602336603.156,
       "total_received": 743932152403.3099,
-      "total_pending": 5528446904199.847,
-      "total_potential": 20960448435264.3,
-      "realization_rate": 11.86,
+      "total_pending": 5295670184199.847,
+      "total_potential": 20727671715264.3,
+      "realization_rate": 12.32,
       "claims_count": 42
     },
     "subcontractor": {
@@ -35,7 +35,7 @@
     },
     "combined": {
       "total_financial_impact": 2302814643019.03,
-      "total_potential_value": 22519330925880.02,
+      "total_potential_value": 22286554205880.02,
       "total_active_cases": 49
     }
   },
@@ -49,9 +49,9 @@
       "circulars": "",
       "actions": "مستندات اولیه و ایده اولیه توسط پیمان رضایی کشف و انجام گردیده است\nدر حال تکمیل مستندات جهت انجام دریافت مازاد باتوجه به بند 2-5 کلیات شرایط خصوصی",
       "in_progress": "",
-      "initial_claim": 232800000000.0,
+      "initial_claim": 23280000.0,
       "received_amount": 0.0,
-      "potential_amount": 232800000000.0,
+      "potential_amount": 23280000.0,
       "realization_method": "",
       "realization_method_excel": "",
       "has_financial": true
