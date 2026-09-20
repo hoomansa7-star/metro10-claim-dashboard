@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl" class="light">
+<html lang="fa" dir="rtl" class="light" data-org="khatam-metro10">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +15,35 @@
       theme: {
         extend: {
           colors: {
+            border: 'hsl(var(--border))',
+            input: 'hsl(var(--input))',
+            ring: 'hsl(var(--ring))',
+            background: 'hsl(var(--background))',
+            foreground: 'hsl(var(--foreground))',
+            primary: {
+              DEFAULT: 'hsl(var(--primary))',
+              foreground: 'hsl(var(--primary-foreground))',
+            },
+            secondary: {
+              DEFAULT: 'hsl(var(--secondary))',
+              foreground: 'hsl(var(--secondary-foreground))',
+            },
+            destructive: {
+              DEFAULT: 'hsl(var(--destructive))',
+              foreground: 'hsl(var(--destructive-foreground))',
+            },
+            muted: {
+              DEFAULT: 'hsl(var(--muted))',
+              foreground: 'hsl(var(--muted-foreground))',
+            },
+            accent: {
+              DEFAULT: 'hsl(var(--accent))',
+              foreground: 'hsl(var(--accent-foreground))',
+            },
+            card: {
+              DEFAULT: 'hsl(var(--card))',
+              foreground: 'hsl(var(--card-foreground))',
+            },
             obsidian: {
               950: '#060a12',
               900: '#0b1120',
@@ -44,6 +73,11 @@
               purple: '#8b5cf6',
               ruby: '#f43f5e'
             }
+          },
+          borderRadius: {
+            lg: 'var(--radius)',
+            md: 'calc(var(--radius) - 2px)',
+            sm: 'calc(var(--radius) - 4px)',
           }
         }
       }
@@ -62,77 +96,166 @@
   <script>if (typeof lucide === "undefined") { document.write('<script src="https://unpkg.com/lucide@latest"><\/script>'); }</script>
 
   <style>
+    /* -------------------------------------------------------------------------- */
+    /* 1. DESIGN TOKENS (shadcn/ui + b2b-theme-ui)                                */
+    /* -------------------------------------------------------------------------- */
+    :root {
+      --radius: 0.625rem;
+      --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+      /* Light Tokens (HSL) */
+      --background: 210 40% 98%;
+      --foreground: 222 47% 11%;
+      --card: 0 0% 100%;
+      --card-foreground: 222 47% 11%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 222 47% 11%;
+      --primary: 38 92% 50%;
+      --primary-foreground: 0 0% 0%;
+      --secondary: 210 40% 96.1%;
+      --secondary-foreground: 222 47% 11.2%;
+      --muted: 210 40% 96.1%;
+      --muted-foreground: 215.4 16.3% 46.9%;
+      --accent: 210 40% 96.1%;
+      --accent-foreground: 222 47% 11.2%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 214.3 31.8% 91.4%;
+      --input: 214.3 31.8% 91.4%;
+      --ring: 38 92% 50%;
+    }
+
+    .dark, html.dark {
+      /* Dark Tokens (HSL) */
+      --background: 222 47% 6%;
+      --foreground: 210 40% 98%;
+      --card: 222 47% 10%;
+      --card-foreground: 210 40% 98%;
+      --popover: 222 47% 9%;
+      --popover-foreground: 210 40% 98%;
+      --primary: 38 92% 50%;
+      --primary-foreground: 0 0% 0%;
+      --secondary: 217.2 32.6% 17.5%;
+      --secondary-foreground: 210 40% 98%;
+      --muted: 217.2 32.6% 15%;
+      --muted-foreground: 215 20.2% 65.1%;
+      --accent: 217.2 32.6% 17.5%;
+      --accent-foreground: 210 40% 98%;
+      --destructive: 0 62.8% 40%;
+      --destructive-foreground: 210 40% 98%;
+      --border: 217.2 32.6% 18%;
+      --input: 217.2 32.6% 18%;
+      --ring: 38 92% 50%;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* 2. MULTI-TENANT BRANDING (Scoped Overrides)                                */
+    /* -------------------------------------------------------------------------- */
+    [data-org="khatam-metro10"] {
+      --primary: 38 92% 50%; /* Golden Amber */
+      --primary-foreground: 0 0% 0%;
+      --ring: 38 92% 50%;
+    }
+    [data-org="metro-tehran"] {
+      --primary: 48 96% 53%; /* Tehran Metro Yellow */
+      --primary-foreground: 0 0% 0%;
+      --ring: 48 96% 53%;
+    }
+    [data-org="harra"] {
+      --primary: 199 89% 48%; /* Harra Cyan-Blue */
+      --primary-foreground: 210 40% 98%;
+      --ring: 199 89% 48%;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /* 3. TYPOGRAPHY & RTL FOUNDATIONS                                            */
+    /* -------------------------------------------------------------------------- */
     * {
-      font-family: 'Vazirmatn', 'Segoe UI', Tahoma, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      font-family: var(--font-sans);
       box-sizing: border-box;
     }
+
+    html, body {
+      direction: rtl;
+      text-align: right;
+      font-size: 14px; /* Optimal base size for Vazirmatn */
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
     
-    /* LIGHT MODE (DEFAULT) */
+    /* LIGHT MODE */
     html.light body {
-      background-color: #f8fafc;
-      color: #0f172a;
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
     }
     html.light .exec-card {
-      background-color: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      transition: all 0.2s ease;
+      background-color: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     html.light .exec-card:hover {
-      border-color: #cbd5e1;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      border-color: hsl(var(--primary) / 0.4);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
     }
     html.light header {
-      background-color: rgba(255, 255, 255, 0.95);
-      border-bottom: 1px solid #e2e8f0;
+      background-color: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid hsl(var(--border));
     }
     html.light aside {
       background-color: #f1f5f9;
-      border-left: 1px solid #e2e8f0;
+      border-left: 1px solid hsl(var(--border));
     }
     html.light .nav-item-active {
-      background-color: #fef3c7;
-      border-color: #f59e0b;
-      color: #78350f;
+      background-color: hsl(var(--primary) / 0.12);
+      border-color: hsl(var(--primary));
+      color: hsl(var(--foreground));
     }
     html.light .inner-card-bg {
       background-color: #f8fafc;
-      border: 1px solid #e2e8f0;
+      border: 1px solid hsl(var(--border));
     }
 
     /* DARK MODE */
     html.dark body {
-      background-color: #060a12;
-      color: #f1f5f9;
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
     }
     html.dark .exec-card {
-      background-color: #0e1626;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
+      background-color: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: var(--radius);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     html.dark .exec-card:hover {
-      border-color: rgba(245, 158, 11, 0.35);
-      box-shadow: 0 8px 30px rgba(245, 158, 11, 0.12);
+      border-color: hsl(var(--primary) / 0.45);
+      box-shadow: 0 8px 30px hsl(var(--primary) / 0.12);
     }
     html.dark header {
-      background-color: rgba(11, 17, 32, 0.92);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background-color: rgba(11, 17, 32, 0.94);
+      border-bottom: 1px solid hsl(var(--border));
     }
     html.dark aside {
       background-color: #0b1120;
-      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 1px solid hsl(var(--border));
     }
     html.dark .nav-item-active {
-      background-color: rgba(245, 158, 11, 0.12);
-      border-color: #f59e0b;
-      color: #fbbf24;
+      background-color: hsl(var(--primary) / 0.14);
+      border-color: hsl(var(--primary));
+      color: hsl(var(--foreground));
     }
     html.dark .inner-card-bg {
-      background-color: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background-color: rgba(0, 0, 0, 0.28);
+      border: 1px solid hsl(var(--border));
+    }
+
+    /* Accessibility Focus States (shadcn style) */
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring));
     }
 
     /* Scrollbars */
@@ -222,9 +345,25 @@
 
     </div>
 
-    <!-- Right: Theme Toggle & Currency Switcher -->
+    <!-- Right: Organization, Theme Toggle & Currency Switcher -->
     <div class="flex items-center gap-2 sm:gap-3">
       
+      <!-- Multi-Tenant Organization Switcher (b2b-theme-ui) -->
+      <div class="hidden md:flex items-center bg-slate-100 dark:bg-obsidian-950 border border-slate-200 dark:border-white/10 rounded-lg p-0.5 text-xs">
+        <button onclick="setOrgTheme('khatam-metro10')" id="org-khatam" class="px-2.5 py-1 rounded font-bold transition-all text-xs flex items-center gap-1.5 shadow-xs bg-white dark:bg-white/10 text-slate-900 dark:text-white" title="قرارگاه سازندگی خاتم‌الانبیاء (ص)">
+          <span class="w-2 h-2 rounded-full bg-amber-500 inline-block shadow-xs"></span>
+          <span>خاتم‌الانبیاء</span>
+        </button>
+        <button onclick="setOrgTheme('metro-tehran')" id="org-metro" class="px-2.5 py-1 rounded font-medium transition-all text-xs flex items-center gap-1.5 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white" title="شرکت راه‌آهن شهری تهران و حومه (مترو)">
+          <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block shadow-xs"></span>
+          <span>مترو تهران</span>
+        </button>
+        <button onclick="setOrgTheme('harra')" id="org-harra" class="px-2.5 py-1 rounded font-medium transition-all text-xs flex items-center gap-1.5 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white" title="موسسه حرا">
+          <span class="w-2 h-2 rounded-full bg-sky-500 inline-block shadow-xs"></span>
+          <span>موسسه حرا</span>
+        </button>
+      </div>
+
       <!-- Theme Toggle (Light / Dark) -->
       <button onclick="toggleTheme()" id="theme-toggle-btn" class="p-2 rounded-lg border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-zinc-300 transition-colors flex items-center gap-1 text-xs" title="تغییر تم (روشن / تاریک)">
         <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
@@ -1142,7 +1281,35 @@
     }
 
 
-    // --- Theme Switching ---
+    // --- Multi-Tenant Theming (b2b-theme-ui) ---
+    let currentOrg = 'khatam-metro10';
+
+    function setOrgTheme(orgId) {
+      currentOrg = orgId;
+      document.documentElement.setAttribute('data-org', orgId);
+      try {
+        localStorage.setItem('metro_org', orgId);
+      } catch (e) {}
+
+      document.querySelectorAll('#org-khatam, #org-metro, #org-harra').forEach(b => {
+        b.classList.remove('bg-white', 'dark:bg-white/10', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-xs');
+        b.classList.add('text-slate-600', 'dark:text-zinc-400', 'font-medium');
+      });
+
+      const activeBtn = document.getElementById(
+        orgId === 'khatam-metro10' ? 'org-khatam' : (orgId === 'metro-tehran' ? 'org-metro' : 'org-harra')
+      );
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-600', 'dark:text-zinc-400', 'font-medium');
+        activeBtn.classList.add('bg-white', 'dark:bg-white/10', 'text-slate-900', 'dark:text-white', 'font-bold', 'shadow-xs');
+      }
+
+      if (currentMainTab === 'analytics') {
+        initAnalyticsCharts();
+      }
+    }
+
+    // --- Theme Switching (shadcn/ui + localStorage) ---
     function applyTheme(theme) {
       currentTheme = theme;
       const html = document.documentElement;
@@ -1160,6 +1327,9 @@
         if (themeIcon) themeIcon.setAttribute('data-lucide', 'moon');
         if (themeLabel) themeLabel.textContent = 'حالت تاریک';
       }
+      try {
+        localStorage.setItem('metro_theme', theme);
+      } catch (e) {}
       lucide.createIcons();
     }
 
@@ -2852,7 +3022,21 @@
 
     // --- Onload Initialization ---
     window.addEventListener('DOMContentLoaded', () => {
-      applyTheme(currentTheme); // Light mode default
+      let initialTheme = 'light';
+      let initialOrg = 'khatam-metro10';
+      try {
+        const savedTheme = localStorage.getItem('metro_theme');
+        if (savedTheme) {
+          initialTheme = savedTheme;
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          initialTheme = 'dark';
+        }
+        const savedOrg = localStorage.getItem('metro_org');
+        if (savedOrg) initialOrg = savedOrg;
+      } catch (e) {}
+
+      applyTheme(initialTheme);
+      setOrgTheme(initialOrg);
       buildNavigator();
       refreshAllData();
       switchMainTab('analytics');
