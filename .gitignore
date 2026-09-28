@@ -1,6 +1,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
+_archive_backup/
+~$*.xlsx
 .venv/
 venv/
 env/
